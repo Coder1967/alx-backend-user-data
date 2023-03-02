@@ -18,7 +18,6 @@ def assist_filter(fields, redaction, separator) -> Tuple:
 
 def filter_datum(fields, redaction,
                  message, separator) -> str:
-    """ returns the log message obfuscated"""
     patterns, repl = assist_filter(fields, redaction, separator)
     for i in range(len(fields)):
         message = re.sub(patterns[i], repl[i], message)
