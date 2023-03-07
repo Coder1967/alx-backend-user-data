@@ -3,6 +3,7 @@
 implements basic auth
 """
 import base64
+from typing import TypeVar
 import binascii
 from api.v1.auth.auth import Auth
 
@@ -63,3 +64,36 @@ class BasicAuth(Auth):
         if len(values) > 1:
             return values[0], values[1]
         return None, None
+
+    def user_object_from_credentials(self,
+                                     user_email: str, user_pwd: str
+                                     ) -> TypeVar('User'):
+        """
+        searches out a user
+        return: user obj if found otherwise None is returned
+        """
+        if type(user_email) == str and type(user_pwd) == str:
+            try:
+                users = User.search({'email': user_email})
+            except Exception:
+                return None
+            if len(users) <= 0:
+                return None
+            if users[0].is_valid_password(user_pwd):
+                return users[0]
+        return None
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Returns a User instance based on a received request
+        """
+        Auth_header = self.authorization_header(request)
+        if Auth_header is not None:
+            token = self.extract_base64_authorization_header(Auth_header)
+            if token is not None:
+                decoded = self.decode_base64_authorization_header(token)
+                if decoded is not None:
+                    email, pword = self.extract_user_credentials(decoded)
+                    if email is not None:
+                        return self.user_object_from_credentials(email, pword)
+        return
