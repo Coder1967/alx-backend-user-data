@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from flask import request
-from typing import List, TypeVar
 """
 handles user authentication
 """
+from flask import request
+from typing import List, TypeVar
 
 
 class Auth:
@@ -26,8 +26,14 @@ class Auth:
 
     def authorization_header(self, request=None) -> str:
         """
-        change later
+        If request is None, returns None If request doesn’t 
+        contain the header key Authorization, returns None Otherwise,
+        return the value of the header request Authorization
         """
+        if request is None:
+            return None
+        if "Authorization" in request.headers:
+            return request.headers["Authorization"]
         return None
 
     def current_user(self, request=None) -> TypeVar('User'):
