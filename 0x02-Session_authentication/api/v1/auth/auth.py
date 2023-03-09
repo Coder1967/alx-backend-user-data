@@ -3,6 +3,7 @@
 handles user authentication
 """
 from flask import request
+from os import getenv
 from typing import List, TypeVar
 
 
@@ -38,5 +39,14 @@ class Auth:
 
     def current_user(self, request=None) -> TypeVar('User'):
         """
-        change later
+        method to be oerloaded
         """
+
+    def session_cookie(self, request=None):
+        """
+        returns the cookie specified on the env variable from request
+        """
+        if request is None:
+            return None
+        cookie_name = getenv('SESSION_NAME')
+        return request.cookies.get(cookie_name)

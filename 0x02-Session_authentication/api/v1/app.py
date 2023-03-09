@@ -18,10 +18,11 @@ auth = None
 
 if getenv("AUTH_TYPE") == "auth":
     auth = Auth()
-elif  getenv("AUTH_TYPE") == "basic_auth":
+elif getenv("AUTH_TYPE") == "basic_auth":
     auth = BasicAuth()
 elif getenv("AUTH_TYPE") == "session_auth":
     auth = SessionAuth()
+
 
 @app.errorhandler(404)
 def not_found(error) -> str:
@@ -51,14 +52,16 @@ def validate_auth():
     """
     validates all requests to secure the API
     """
-    excluded_paths = ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
+    excluded_paths = ['/api/v1/status/', '/api/v1/unauthorized/',
+                      '/api/v1/forbidden/', '/api/v1/auth_session/login/']
 
     request.current_user = auth.current_user(request)
     if auth is None:
         return
     if auth.require_auth(request.path, excluded_paths) is False:
         return
-    if auth.authorization_header(request) is None:
+    if auth.authorization_header(request) is None and\
+    auth.session_cookie(request) is None:
         abort(401)
     if auth.current_user(request) is None:
         abort(403)
