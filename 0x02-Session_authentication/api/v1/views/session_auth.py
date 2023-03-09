@@ -30,7 +30,7 @@ def login() -> Tuple[str, int]:
     from api.v1.app import auth
     session_id = auth.create_session(user[0].id)
     response = jsonify(user[0].to_json())
-    response.set_cookie(getenv("SESSION_NAME"), sessiond_id)
+    response.set_cookie(getenv("SESSION_NAME"), session_id)
     return response
 
 
