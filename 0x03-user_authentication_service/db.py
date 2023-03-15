@@ -23,7 +23,7 @@ class DB:
         Base.metadata.create_all(self._engine)
         self.__session = None
 
-    def add_user(self, email, hashed_pwd) -> User:
+    def add_user(self, email: str, hashed_pwd: str) -> User:
         """
         creates and saves a new user
         """
@@ -51,20 +51,20 @@ class DB:
         fields = {"email": User.email, "hashed_password": User.hashed_password,
                   "session_id": User.session_id,
                   "reset_token": User.reset_token, "id": User.id}
-        key = list(kwargs.keys())[0]
 
-        if key in fields:
-            field = fields[key]
-            value = kwargs[key]
-            sesh = self._session
-            user = sesh.query(User).filter(field == value).first()
-            if user is None:
-                raise NoResultFound
-            return user
-        else:
-            raise InvalidRequestError
+        for key, value in kwargs.items():
+            if key in fields:
+                field = fields[key]
+                value = kwargs[key]
+                sesh = self._session
+                user = sesh.query(User).filter(field == value).first()
+                if user is None:
+                    raise NoResultFound
+                return user
+            else:
+                raise InvalidRequestError
 
-    def update_user(self, user_id, **kwargs) -> None:
+    def update_user(self, user_id: int, **kwargs) -> None:
         """
         updates the value of the user attribute
         using key-word argument
@@ -72,12 +72,12 @@ class DB:
         fields = {"email": "str", "hashed_password": "str",
                   "session_id": "str",
                   "reset_token": "str", "id": "int"}
-        key = list(kwargs.keys())[0]
-        if type(user_id).__name__ != "int":
-            raise ValueError
-        if key in fields:
-            if type(kwargs[key]).__name__ != fields[key]:
+        for key, value in kwargs.items():
+            if type(user_id).__name__ != "int":
                 raise ValueError
-        user = self.find_user_by(id=user_id)
-        user.__dict__[key] = kwargs[key]
-        self._session.commit()
+            if key in fields:
+                if type(kwargs[key]).__name__ != fields[key]:
+                    raise ValueError
+            user = self.find_user_by(id=user_id)
+            setattr(user, key, value)
+            self._session.commit()
